@@ -1,1 +1,59 @@
-<h1>Hi</h1>
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <script src="/angular.min.js"></script>
+        <link rel="stylesheet" href="/bootstrap.min.css">
+        <style>
+            #list {
+                max-width: 680pt;
+            }
+
+            .list-group-item {
+                margin: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div ng-app="myApp" ng-controller="myCtrl">
+            <center>
+                <h2>Current Robot Maker's Hub Internet Usage</h2>
+                <h6>latency: ~10sec</h6>
+                <hr>
+                <div class="list-group" id="list">
+                    <div class="list-group-item list-group-item-info" ng-repeat="app in list">
+                        <h4 class="list-group-item-heading">{{app.name}}</h4>
+                        <div class="row">
+                            <div class="col-xs-12 col-md-4">
+                                Total : {{app.download.total}}
+                            </div>
+                            <div class="col-xs-12 col-md-4">
+                                CurSpeed : {{app.download.speed}}
+                            </div>
+                            <div class="col-xs-12 col-md-4">
+                                CurConnections : {{app.connections}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </center>
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var app = angular.module("myApp", []);
+            var socket = io();
+            app.controller("myCtrl", function($scope) {
+                $scope.list = [];
+                socket.on('update_usage', function(msg) {
+                    $scope.$apply(function() {
+                        $scope.list = msg;
+                    });
+                });
+            });
+        </script>
+
+    </body>
+
+</html>

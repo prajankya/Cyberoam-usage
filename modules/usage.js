@@ -28,6 +28,8 @@ module.exports = {
                 parseString(body, function(err, result) {
                     var ar = result.t.r;
                     var out = [];
+                    var total = {};
+                    console.log(JSON.stringify(result.t));
                     for (var i = 0; i < ar.length; i++) {
                         var obj = {};
                         obj.name = ar[i].c1[0];
