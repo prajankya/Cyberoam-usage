@@ -4,7 +4,8 @@
   "description": "To check usage of a user in cyberoam",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "DEBUG=* nodemon ."
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,11 @@
   "bugs": {
     "url": "https://github.com/prajankya/Cyberoam-usage/issues"
   },
-  "homepage": "https://github.com/prajankya/Cyberoam-usage#readme"
+  "homepage": "https://github.com/prajankya/Cyberoam-usage#readme",
+  "dependencies": {
+    "node-cmd": "^1.1.1",
+    "node-libcurl": "^1.0.0",
+    "querystring": "^0.2.0",
+    "xml2js": "^0.4.17"
+  }
 }
