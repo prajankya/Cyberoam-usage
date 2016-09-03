@@ -21,9 +21,23 @@
             <center>
                 <h2>Current Robot Maker's Hub Internet Usage</h2>
                 <h6>latency: ~10sec</h6>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3">
+                        Total Upload: {{usage.upload}}
+                    </div>
+                    <div class="col-xs-12 col-sm-3">
+                        Total Download: {{usage.download}}
+                    </div>
+                    <div class="col-xs-12 col-sm-3">
+                        Current upload Speed: {{usage.upload_speed}}
+                    </div>
+                    <div class="col-xs-12 col-sm-3">
+                        Current download Speed: {{usage.download_speed}}
+                    </div>
+                </div>
                 <hr>
                 <div class="list-group" id="list">
-                    <div class="list-group-item list-group-item-info" ng-repeat="app in list">
+                    <div class="list-group-item list-group-item-info" ng-repeat="app in usage.apps">
                         <h4 class="list-group-item-heading">{{app.name}}</h4>
                         <div class="row">
                             <div class="col-xs-12 col-sm-4">
@@ -48,8 +62,7 @@
                 $scope.list = [];
                 socket.on('update_usage', function(msg) {
                     $scope.$apply(function() {
-                        console.log(msg);
-                        $scope.list = msg.apps;
+                        $scope.usage = msg;
                     });
                 });
             });
