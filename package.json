@@ -23,10 +23,12 @@
   },
   "homepage": "https://github.com/prajankya/Cyberoam-usage#readme",
   "dependencies": {
+    "express": "^4.14.0",
     "filesize": "^3.3.0",
     "node-cmd": "^1.1.1",
     "node-libcurl": "^1.0.0",
     "querystring": "^0.2.0",
+    "socket.io": "^1.4.8",
     "xml2js": "^0.4.17"
   }
 }
