@@ -26,13 +26,13 @@
                     <div class="list-group-item list-group-item-info" ng-repeat="app in list">
                         <h4 class="list-group-item-heading">{{app.name}}</h4>
                         <div class="row">
-                            <div class="col-xs-12 col-md-4">
+                            <div class="col-xs-12 col-sm-4">
                                 Total : {{app.download.total}}
                             </div>
-                            <div class="col-xs-12 col-md-4">
+                            <div class="col-xs-12 col-sm-4">
                                 CurSpeed : {{app.download.speed}}
                             </div>
-                            <div class="col-xs-12 col-md-4">
+                            <div class="col-xs-12 col-sm-4">
                                 CurConnections : {{app.connections}}
                             </div>
                         </div>
@@ -48,7 +48,8 @@
                 $scope.list = [];
                 socket.on('update_usage', function(msg) {
                     $scope.$apply(function() {
-                        $scope.list = msg;
+                        console.log(msg);
+                        $scope.list = msg.apps;
                     });
                 });
             });

@@ -5,7 +5,6 @@ var io = require('socket.io')(http);
 var usage = require('./modules/usage');
 
 usage.init();
-var curUsage = [];
 
 // serve index.html if root
 app.get('/', function(req, res) {
@@ -17,10 +16,7 @@ app.use(express.static(__dirname + '/public'));
 
 setInterval(function() {
     var use = usage.poll();
-    if (use !== curUsage) {
-        curUsage = use;
-        io.emit("update_usage", curUsage);
-    }
+    io.emit("update_usage", use);
 }, 2000);
 
 // start

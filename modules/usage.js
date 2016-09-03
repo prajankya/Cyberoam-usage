@@ -7,20 +7,41 @@ var filesize = require('filesize');
 
 module.exports = {
     init: function() {
-        this.curl = new Curl();
+        this.appsUsageCurl = new Curl();
+        this.overallUsageCurl = new Curl();
         this.base_url = 'http://10.10.10.1/';
         this.url = this.base_url + "corporate/Controller?";
 
-        this.curl.setOpt(Curl.option.URL, this.url);
-        this.curl.setOpt(Curl.option.HTTPHEADER, ['User-Agent: rmh-prajankya/1.0']);
+        this.appsUsageCurl.setOpt(Curl.option.URL, this.url);
+        this.appsUsageCurl.setOpt(Curl.option.HTTPHEADER, ['User-Agent: rmh-prajankya/1.0']);
+
+        this.overallUsageCurl.setOpt(Curl.option.URL, this.url);
+        this.overallUsageCurl.setOpt(Curl.option.HTTPHEADER, ['User-Agent: rmh-prajankya/1.0']);
 
         this.cookie = "";
-        this.outObj = [];
+        this.outObj = {};
+        this.outObj.apps = [];
 
         this.loggedIn = false;
         var that = this;
 
-        this.curl.on('end', function(statusCode, body) {
+        this.overallUsageCurl.on('end', function(statusCode, body) {
+            if (body.length == 0 && that.loggedIn) {
+                that.loggedIn = false;
+                that.login();
+            } else {
+                parseString(body, function(err, result) {
+                    that.outObj.upload = filesize(result.t.r[0].c2[0]);
+                    that.outObj.download = filesize(result.t.r[0].c3[0]);
+                    that.outObj.upload_speed = filesize(result.t.r[0].c4[0]) + "/s";
+                    that.outObj.download_speed = filesize(result.t.r[0].c5[0]) + "/s";
+
+                    that.outObj.connections = parseInt(result.t.r[0].c6[0]);
+                });
+            }
+        });
+
+        this.appsUsageCurl.on('end', function(statusCode, body) {
             if (body.length == 0 && that.loggedIn) {
                 that.loggedIn = false;
                 that.login();
@@ -29,7 +50,6 @@ module.exports = {
                     var ar = result.t.r;
                     var out = [];
                     var total = {};
-                    console.log(JSON.stringify(result.t));
                     for (var i = 0; i < ar.length; i++) {
                         var obj = {};
                         obj.name = ar[i].c1[0];
@@ -44,16 +64,17 @@ module.exports = {
                         obj.connections = parseInt(ar[i].c6[0]);
                         out.push(obj);
                     }
-                    that.outObj = out;
+                    that.outObj.apps = out;
                 });
             }
         });
-        this.curl.on('error', this.curl.close.bind(this.curl));
+        this.appsUsageCurl.on('error', this.appsUsageCurl.close.bind(this.curl));
+        this.overallUsageCurl.on('error', this.overallUsageCurl.close.bind(this.curl));
 
         this.login();
     },
     poll: function() {
-        if (!this.curl._isRunning && this.loggedIn) {
+        if (!this.appsUsageCurl._isRunning && this.loggedIn) {
             var data = {
                 'mode': 331,
                 'group1': 'srcip',
@@ -61,11 +82,26 @@ module.exports = {
                 'condition': '10.4.0.99'
             };
             data = querystring.stringify(data);
-            this.curl.setOpt(Curl.option.POSTFIELDS, data);
-            this.curl.setOpt(Curl.option.COOKIE, "JSESSIONID=" + this.cookie + ";");
+            this.appsUsageCurl.setOpt(Curl.option.POSTFIELDS, data);
+            this.appsUsageCurl.setOpt(Curl.option.COOKIE, "JSESSIONID=" + this.cookie + ";");
             //this.curl.setOpt(Curl.option.VERBOSE, true);
-            this.curl.perform();
+            this.appsUsageCurl.perform();
         }
+
+        if (!this.overallUsageCurl._isRunning && this.loggedIn) {
+            var data = {
+                'mode': 331,
+                'group1': 'srcip',
+                'searchKey': 'srcip',
+                'searchCont': '10.4.0.99',
+                'criteria': 'like'
+            };
+            data = querystring.stringify(data);
+            this.overallUsageCurl.setOpt(Curl.option.POSTFIELDS, data);
+            this.overallUsageCurl.setOpt(Curl.option.COOKIE, "JSESSIONID=" + this.cookie + ";");
+            this.overallUsageCurl.perform();
+        }
+
         return this.outObj;
     },
     login: function() {
