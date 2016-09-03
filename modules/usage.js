@@ -3,6 +3,7 @@ var Curl = require('node-libcurl').Curl;
 var Easy = require('node-libcurl').Easy;
 var querystring = require('querystring');
 var parseString = require('xml2js').parseString;
+var filesize = require('filesize');
 
 module.exports = {
     init: function() {
@@ -14,17 +15,8 @@ module.exports = {
         this.curl.setOpt(Curl.option.HTTPHEADER, ['User-Agent: rmh-prajankya/1.0']);
 
         this.cookie = "";
-        /*this.gate = 'B';
-        this.outObj = {
-            PortB: {
-                status: 0,
-                speed: 0.001
-            },
-            PortU: {
-                status: 0,
-                speed: 0.001
-            }
-        };*/
+        this.outObj = [];
+
         this.loggedIn = false;
         var that = this;
 
@@ -33,18 +25,25 @@ module.exports = {
                 that.loggedIn = false;
                 that.login();
             } else {
-                //console.log(body);
                 parseString(body, function(err, result) {
-                    console.dir(JSON.stringify(result.t.r[0]));
-                });
-                /*var gat = body.substr(body.indexOf('Port'), 5);
+                    var ar = result.t.r;
+                    var out = [];
+                    for (var i = 0; i < ar.length; i++) {
+                        var obj = {};
+                        obj.name = ar[i].c1[0];
+                        obj.upload = {};
+                        obj.download = {};
 
-                var se1 = body.substring(body.indexOf("<set")); //get The first SET tag(Received)
-                se1 = se1.substring(0, se1.indexOf(">") + 1);
-                se1 = se1.substring(se1.indexOf('current="') + 9); //get the current speed
-                se1 = se1.substring(0, se1.indexOf('"'));
-                that.outObj[gat].speed = parseFloat(se1);
-                */
+                        obj.upload.total = filesize(ar[i].c2);
+                        obj.download.total = filesize(ar[i].c3);
+                        obj.upload.speed = filesize(ar[i].c4) + "/s";
+                        obj.download.speed = filesize(ar[i].c5) + "/s";
+
+                        obj.connections = parseInt(ar[i].c6[0]);
+                        out.push(obj);
+                    }
+                    that.outObj = out;
+                });
             }
         });
         this.curl.on('error', this.curl.close.bind(this.curl));
@@ -65,16 +64,14 @@ module.exports = {
             //this.curl.setOpt(Curl.option.VERBOSE, true);
             this.curl.perform();
         }
-        //console.log(this.outObj);
         return this.outObj;
     },
     login: function() {
-        //console.log("Logging in the Cyberoam");
+        console.log("Logging in the Cyberoam");
         var that = this;
         cmd.get(__dirname + '/phantomjs ' + __dirname + '/login.js ' + this.base_url, function(data) {
             if (data.length) {
                 var re = JSON.parse(data);
-                console.log('data : ', re.JSESSIONID);
                 that.cookie = re.JSESSIONID;
                 that.loggedIn = true;
                 console.log("logged in Cyberoam");
