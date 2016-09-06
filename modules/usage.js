@@ -50,19 +50,21 @@ module.exports = {
                     var ar = result.t.r;
                     var out = [];
                     var total = {};
-                    for (var i = 0; i < ar.length; i++) {
-                        var obj = {};
-                        obj.name = ar[i].c1[0];
-                        obj.upload = {};
-                        obj.download = {};
+                    if (ar) {
+                        for (var i = 0; i < ar.length; i++) {
+                            var obj = {};
+                            obj.name = ar[i].c1[0];
+                            obj.upload = {};
+                            obj.download = {};
 
-                        obj.upload.total = filesize(ar[i].c2);
-                        obj.download.total = filesize(ar[i].c3);
-                        obj.upload.speed = filesize(ar[i].c4) + "/s";
-                        obj.download.speed = filesize(ar[i].c5) + "/s";
+                            obj.upload.total = filesize(ar[i].c2);
+                            obj.download.total = filesize(ar[i].c3);
+                            obj.upload.speed = filesize(ar[i].c4) + "/s";
+                            obj.download.speed = filesize(ar[i].c5) + "/s";
 
-                        obj.connections = parseInt(ar[i].c6[0]);
-                        out.push(obj);
+                            obj.connections = parseInt(ar[i].c6[0]);
+                            out.push(obj);
+                        }
                     }
                     that.outObj.apps = out;
                 });
